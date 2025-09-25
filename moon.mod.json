@@ -2,8 +2,8 @@
   "name": "SupremeHuaji/ptime",
   "version": "0.1.0",
   "readme": "README.md",
-  "repository": "",
+  "repository": "https://github.com/SupremeHuaji/ptime",
   "license": "Apache-2.0",
-  "keywords": [],
-  "description": ""
+  "keywords": ["time", "posix", "rfc3339", "moonbit"],
+  "description": "A lightweight time library for MoonBit with picosecond precision"
 }

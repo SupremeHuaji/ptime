@@ -56,9 +56,9 @@ pub fn of_rfc3339(s : String) -> Result[PTime, PTimeError] {
   }
 
   // 解析年月日
-  let year = parse_int(s.substring(start=0, end=4))
-  let month = parse_int(s.substring(start=5, end=7))
-  let day = parse_int(s.substring(start=8, end=10))
+  let year = parse_int(s.unsafe_substring(start=0, end=4))
+  let month = parse_int(s.unsafe_substring(start=5, end=7))
+  let day = parse_int(s.unsafe_substring(start=8, end=10))
 
   // 验证日期
   if !is_valid_date(year, month, day) {
@@ -66,9 +66,9 @@ pub fn of_rfc3339(s : String) -> Result[PTime, PTimeError] {
   }
 
   // 解析时分秒
-  let hour = parse_int(s.substring(start=11, end=13))
-  let minute = parse_int(s.substring(start=14, end=16))
-  let second = parse_int(s.substring(start=17, end=19))
+  let hour = parse_int(s.unsafe_substring(start=11, end=13))
+  let minute = parse_int(s.unsafe_substring(start=14, end=16))
+  let second = parse_int(s.unsafe_substring(start=17, end=19))
 
   // 验证时间
   if hour >= 24 || minute >= 60 || second >= 60 {
@@ -86,7 +86,7 @@ pub fn of_rfc3339(s : String) -> Result[PTime, PTimeError] {
     while pos < s.length() && is_digit(s[pos]) {
       pos += 1
     }
-    let frac_str = s.substring(start=frac_start, end=pos)
+    let frac_str = s.unsafe_substring(start=frac_start, end=pos)
     picoseconds = parse_fractional_seconds(frac_str)
   }
 
@@ -99,8 +99,8 @@ pub fn of_rfc3339(s : String) -> Result[PTime, PTimeError] {
     } else if s[pos] == '+' || s[pos] == '-' {
       // 解析 ±HH:MM 格式的时区偏移
       let sign = if s[pos] == '+' { 1 } else { -1 }
-      let tz_hour = parse_int(s.substring(start=pos + 1, end=pos + 3))
-      let tz_minute = parse_int(s.substring(start=pos + 4, end=pos + 6))
+      let tz_hour = parse_int(s.unsafe_substring(start=pos + 1, end=pos + 3))
+      let tz_minute = parse_int(s.unsafe_substring(start=pos + 4, end=pos + 6))
       tz_offset_seconds = sign * (tz_hour * 3600 + tz_minute * 60)
     }
   }
@@ -317,7 +317,7 @@ fn format_fractional_seconds(picoseconds : Int64) -> String {
 
   // 移除末尾的0
   while picos_str.length() > 0 && picos_str[picos_str.length() - 1] == '0' {
-    picos_str = picos_str.substring(start=0, end=picos_str.length() - 1)
+    picos_str = picos_str.unsafe_substring (start=0, end=picos_str.length() - 1)
   }
   picos_str
 }

@@ -11,6 +11,7 @@ pub(all) enum PTimeError {
   InvalidDate(String)
   /// 无效时间错误
   InvalidTime(String)
+  /// 除以零错误
   /// 其他错误
   Other(String)
 } derive(Show, Eq)

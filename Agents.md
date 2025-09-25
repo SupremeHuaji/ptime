@@ -17,7 +17,7 @@ This is a [MoonBit](https://docs.moonbitlang.com) project.
 - MoonBit code is organized in block style, each block is separated by `///|`,
   the order of each block is irrelevant. In some refactorings, you can process
   block by block independently.
-
+0
 - Try to keep deprecated blocks in file called `deprecated.mbt` in each
   directory.
 

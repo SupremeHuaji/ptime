@@ -33,11 +33,23 @@ pub fn add_span(pt : PTime, sp : Span) -> PTime {
 }
 
 ///|
-/// 计算两个时间点的差，返回时间跨度
-pub fn diff(pt1 : PTime, pt2 : PTime) -> Span {
-  let sec_diff = pt1.seconds - pt2.seconds
-  let pico_diff = pt1.picoseconds - pt2.picoseconds
-  normalize_span(Span::{ seconds: sec_diff, picoseconds: pico_diff })
+/// 计算两个时间点之间的差值
+pub fn diff(pt1 : PTime, pt2 : PTime) -> PTime {
+  let mut seconds_diff = pt1.seconds - pt2.seconds
+  let mut picoseconds_diff = pt1.picoseconds - pt2.picoseconds
+
+  // 如果皮秒差值为负数，需要向秒借位
+  if picoseconds_diff < 0 {
+    seconds_diff -= 1
+    picoseconds_diff += 1_000_000_000_000
+  }
+
+  // 如果秒数为负数且皮秒数不为零，需要调整皮秒为负数
+  if seconds_diff < 0 && picoseconds_diff > 0 {
+    seconds_diff += 1
+    picoseconds_diff -= 1_000_000_000_000
+  }
+  PTime::{ seconds: seconds_diff, picoseconds: picoseconds_diff }
 }
 
 ///|
@@ -81,30 +93,19 @@ pub fn mul_span(sp : Span, scalar : Float) -> Span {
 
 ///|
 /// 将时间跨度除以一个标量，返回新的时间跨度
-pub fn div_span(sp : Span, scalar : Float) -> Result[Span, PTimeError] {
-  if scalar == 0.0 {
+pub fn div_span(span : Span, divisor : Int) -> Result[Span, PTimeError] {
+  if divisor == 0 {
     return Err(PTimeError::DivideByZero("Cannot divide span by zero"))
   }
 
-  // 计算总皮秒数
-  let total_picos = sp.seconds.to_float() * 1_000_000_000_000.0 +
-    sp.picoseconds.to_float()
-  // 除以标量
-  let result_picos = total_picos / scalar
-  // 拆分为秒和皮秒
-  let result_seconds = (result_picos / 1_000_000_000_000.0)
-    .floor()
-    .to_double()
-    .to_int64()
-  let result_picoseconds = (result_picos % 1_000_000_000_000.0)
-    .to_double()
-    .to_int64()
-  Ok(
-    normalize_span(Span::{
-      seconds: result_seconds,
-      picoseconds: result_picoseconds,
-    }),
-  )
+  // 将总时间转换为皮秒
+  let total_picoseconds = span.seconds * 1_000_000_000_000 + span.picoseconds
+
+  // 执行除法
+  let quotient_picoseconds = total_picoseconds / divisor.to_int64()
+  let seconds = quotient_picoseconds / 1_000_000_000_000
+  let picoseconds = quotient_picoseconds % 1_000_000_000_000
+  Ok(Span::{ seconds, picoseconds })
 }
 
 ///|
