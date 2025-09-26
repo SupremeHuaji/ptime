@@ -72,23 +72,21 @@ pub fn compare(pt1 : PTime, pt2 : PTime) -> Int {
 ///|
 /// 将时间跨度乘以一个标量，返回新的时间跨度
 pub fn mul_span(sp : Span, scalar : Float) -> Span {
-  // 计算总皮秒数
+  // 若标量接近整数，则按整数相乘以避免浮点误差
+  let rounded = scalar.round()
+  let delta = if scalar > rounded { scalar - rounded } else { rounded - scalar }
+  if delta < 0.000000001 {
+    let k = rounded.to_double().to_int64()
+    return Span::{ seconds: sp.seconds * k, picoseconds: sp.picoseconds * k }
+  }
+
+  // 否则，使用总皮秒法尽量精确（并保持未规范化的形式）
   let total_picos = sp.seconds.to_float() * 1_000_000_000_000.0 +
     sp.picoseconds.to_float()
-  // 乘以标量
-  let result_picos = total_picos * scalar
-  // 拆分为秒和皮秒
-  let result_seconds = (result_picos / 1_000_000_000_000.0)
-    .floor()
-    .to_double()
-    .to_int64()
-  let result_picoseconds = (result_picos % 1_000_000_000_000.0)
-    .to_double()
-    .to_int64()
-  normalize_span(Span::{
-    seconds: result_seconds,
-    picoseconds: result_picoseconds,
-  })
+  let result_picos = (total_picos * scalar).round().to_double().to_int64()
+  let seconds = result_picos / 1_000_000_000_000
+  let picoseconds = result_picos % 1_000_000_000_000
+  Span::{ seconds, picoseconds }
 }
 
 ///|

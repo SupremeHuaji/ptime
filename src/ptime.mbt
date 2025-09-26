@@ -7,12 +7,13 @@ pub fn epoch() -> PTime {
 ///|
 /// 从浮点数创建时间点
 pub fn of_float(time : Float) -> PTime {
-  let seconds = time.trunc().to_double().to_int64() // 获取整数部分作为秒
-  let fractional_part = time - seconds.to_float() // 获取小数部分
-  let picoseconds = (fractional_part * 1_000_000_000_000.0).round() // 转换为皮秒并四舍五入
+  // 先将总秒数转换为“总微秒”，用四舍五入减少浮点误差
+  let total_micros = (time * 1_000_000.0).round().to_double().to_int64()
+  let seconds = total_micros / 1_000_000
+  let micros = total_micros % 1_000_000
   {
     seconds: seconds.to_double().to_int64(),
-    picoseconds: picoseconds.to_double().to_int64(),
+    picoseconds: (micros * 1_000_000).to_double().to_int64(),
   }
 }
 
